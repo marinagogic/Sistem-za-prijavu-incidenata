@@ -15,8 +15,10 @@ jobs:
         service:
           - config-server
           - discovery-service
-          - gateway-service
           - incident-service
+          - user-service
+          - auth-service
+          - gateway-service
 
     steps:
       - name: Checkout code
