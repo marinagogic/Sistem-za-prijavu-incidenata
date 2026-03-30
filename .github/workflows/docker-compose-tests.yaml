@@ -1,1 +1,41 @@
+name: Docker Compose API Tests
 
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  compose-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start services
+        run: docker compose up -d --build
+
+      - name: Show running containers
+        run: docker ps
+
+      - name: Wait for services to start
+        run: sleep 60
+
+      - name: Check gateway health
+        run: curl --fail http://localhost:8080/actuator/health
+
+      - name: Check incident-service through gateway
+        run: curl --fail http://localhost:8080/api/incidents || exit 1
+
+      - name: Check discovery dashboard
+        run: curl --fail http://localhost:8761 || exit 1
+
+      - name: Show logs if failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop services
+        if: always()
+        run: docker compose down
