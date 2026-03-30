@@ -1,0 +1,149 @@
+package org.unibl.etf.pisio.incidentservice.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.unibl.etf.pisio.incidentservice.dto.CreateIncidentRequest;
+import org.unibl.etf.pisio.incidentservice.dto.IncidentResponse;
+import org.unibl.etf.pisio.incidentservice.model.Incident;
+import org.unibl.etf.pisio.incidentservice.model.Location;
+import org.unibl.etf.pisio.incidentservice.model.enums.IncidentStatus;
+import org.unibl.etf.pisio.incidentservice.model.enums.IncidentSubtype;
+import org.unibl.etf.pisio.incidentservice.model.enums.IncidentType;
+import org.unibl.etf.pisio.incidentservice.repository.IncidentRepository;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class IncidentService {
+
+    private final IncidentRepository incidentRepository;
+
+    public IncidentService(IncidentRepository incidentRepository) {
+        this.incidentRepository = incidentRepository;
+    }
+
+    public IncidentResponse createIncident(CreateIncidentRequest request, MultipartFile image) throws IOException {
+        validateSubtype(request.getType(), request.getSubtype());
+
+        Incident incident = new Incident();
+        incident.setType(request.getType());
+        incident.setSubtype(request.getSubtype());
+        incident.setDescription(request.getDescription());
+        incident.setLocation(new Location(
+                request.getAddress(),
+                request.getLatitude(),
+                request.getLongitude()
+        ));
+        incident.setStatus(IncidentStatus.PENDING);
+
+        if (image != null && !image.isEmpty()) {
+            String uploadDir = "uploads/";
+            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+            Path path = Paths.get(uploadDir, fileName);
+
+            Files.createDirectories(path.getParent());
+            Files.copy(image.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+            incident.setImagePath("/uploads/" + fileName);
+        }
+
+        Incident saved = incidentRepository.save(incident);
+        return mapToResponse(saved);
+    }
+
+    public List<IncidentResponse> getAllIncidents() {
+        return incidentRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public List<IncidentResponse> getPendingIncidents() {
+        return incidentRepository.findByStatus(IncidentStatus.PENDING)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public List<IncidentResponse> getApprovedIncidentsFiltered(
+            IncidentType type,
+            IncidentSubtype subtype,
+            String location,
+            String period
+    ) {
+        List<Incident> approved = incidentRepository.findByStatus(IncidentStatus.APPROVED);
+
+        LocalDateTime fromDate = switch (period) {
+            case "24h" -> LocalDateTime.now().minusHours(24);
+            case "7d" -> LocalDateTime.now().minusDays(7);
+            case "31d" -> LocalDateTime.now().minusDays(31);
+            default -> null;
+        };
+
+        return approved.stream()
+                .filter(i -> type == null || i.getType() == type)
+                .filter(i -> subtype == null || i.getSubtype() == subtype)
+                .filter(i -> location == null || location.isBlank()
+                        || (i.getLocation() != null
+                        && i.getLocation().getAddress() != null
+                        && i.getLocation().getAddress().toLowerCase().contains(location.toLowerCase())))
+                .filter(i -> fromDate == null || i.getCreatedAt().isAfter(fromDate))
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public Optional<IncidentResponse> approveIncident(Long id) {
+        return incidentRepository.findById(id)
+                .map(incident -> {
+                    incident.setStatus(IncidentStatus.APPROVED);
+                    return incidentRepository.save(incident);
+                })
+                .map(this::mapToResponse);
+    }
+
+    public Optional<IncidentResponse> rejectIncident(Long id) {
+        return incidentRepository.findById(id)
+                .map(incident -> {
+                    incident.setStatus(IncidentStatus.REJECTED);
+                    return incidentRepository.save(incident);
+                })
+                .map(this::mapToResponse);
+    }
+
+    private void validateSubtype(IncidentType type, IncidentSubtype subtype) {
+        if (type == null || subtype == null) {
+            return;
+        }
+
+        if (subtype.getParentType() != type) {
+            throw new IllegalArgumentException("Selected subtype does not belong to selected type.");
+        }
+    }
+
+    private IncidentResponse mapToResponse(Incident incident) {
+        IncidentResponse response = new IncidentResponse();
+        response.setId(incident.getId());
+        response.setType(incident.getType());
+        response.setSubtype(incident.getSubtype());
+        response.setStatus(incident.getStatus());
+        response.setDescription(incident.getDescription());
+        response.setImagePath(incident.getImagePath());
+        response.setCreatedAt(incident.getCreatedAt());
+
+        if (incident.getLocation() != null) {
+            response.setAddress(incident.getLocation().getAddress());
+            response.setLatitude(incident.getLocation().getLatitude());
+            response.setLongitude(incident.getLocation().getLongitude());
+        }
+
+        return response;
+    }
+}

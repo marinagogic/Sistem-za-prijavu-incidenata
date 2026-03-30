@@ -1,16 +1,8 @@
-server:
-  port: 8083
-
 spring:
   application:
     name: auth-service
-
-jwt:
-  secret: mojTajniKljucKojiMoraBitiBasMnogoDugacakZaHS512Algoritam123456789!ABCDEFghijklmnop
-  expiration: 86400000
-
-user-service:
-  url: user-service:8082
+  config:
+    import: configserver:http://config-server:8888/
 
 eureka:
   client:

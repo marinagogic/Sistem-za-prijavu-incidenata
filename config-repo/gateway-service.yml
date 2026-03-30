@@ -10,9 +10,17 @@ spring:
         - PreserveHostHeader
       routes:
         - id: incident-service
-          uri: http://incident-service:8081
+          uri: lb://incident-service
           predicates:
             - Path=/api/incidents/**
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
 
 eureka:
   client:
@@ -20,3 +28,6 @@ eureka:
       defaultZone: http://discovery-service:8761/eureka
     register-with-eureka: true
     fetch-registry: true
+
+jwt:
+  secret: mojTajniKljucKojiMoraBitiDovoljnoDugacak123456
