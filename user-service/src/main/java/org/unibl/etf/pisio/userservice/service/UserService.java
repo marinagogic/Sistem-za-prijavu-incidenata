@@ -38,14 +38,20 @@ public class UserService {
     }
 
     public User create(User user) {
+        validateBasicFields(user, true);
+        validateUniquenessForCreate(user);
         checkPasswordStrength(user.getPassword());
+
         user.setPassword(encoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     public UserDTO updateSimple(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found."));
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
+
+        validateBasicFields(userDTO);
+        validateUniquenessForUpdate(id, userDTO.getUsername(), userDTO.getEmail());
 
         user.setUsername(userDTO.getUsername());
         user.setFirstName(userDTO.getFirstName());
@@ -58,14 +64,19 @@ public class UserService {
 
     public Optional<User> updateUser(Long id, User changedUser) {
         return userRepository.findById(id).map(existingUser -> {
-            checkPasswordStrength(changedUser.getPassword());
+            validateBasicFields(changedUser, false);
+            validateUniquenessForUpdate(id, changedUser.getUsername(), changedUser.getEmail());
 
             existingUser.setUsername(changedUser.getUsername());
-            existingUser.setPassword(encoder.encode(changedUser.getPassword()));
             existingUser.setRole(changedUser.getRole());
             existingUser.setFirstName(changedUser.getFirstName());
             existingUser.setLastName(changedUser.getLastName());
             existingUser.setEmail(changedUser.getEmail());
+
+            if (!isBlank(changedUser.getPassword())) {
+                checkPasswordStrength(changedUser.getPassword());
+                existingUser.setPassword(encoder.encode(changedUser.getPassword()));
+            }
 
             return userRepository.save(existingUser);
         });
@@ -102,11 +113,82 @@ public class UserService {
         return dto;
     }
 
+    private void validateBasicFields(User user, boolean passwordRequired) {
+        if (user == null) {
+            throw new IllegalArgumentException("User data is required.");
+        }
+
+        if (isBlank(user.getUsername())) {
+            throw new IllegalArgumentException("Username is required.");
+        }
+        if (isBlank(user.getFirstName())) {
+            throw new IllegalArgumentException("First name is required.");
+        }
+        if (isBlank(user.getLastName())) {
+            throw new IllegalArgumentException("Last name is required.");
+        }
+        if (isBlank(user.getEmail())) {
+            throw new IllegalArgumentException("Email is required.");
+        }
+        if (passwordRequired && isBlank(user.getPassword())) {
+            throw new IllegalArgumentException("Password is required.");
+        }
+    }
+
+    private void validateBasicFields(UserDTO userDTO) {
+        if (userDTO == null) {
+            throw new IllegalArgumentException("User data is required.");
+        }
+
+        if (isBlank(userDTO.getUsername())) {
+            throw new IllegalArgumentException("Username is required.");
+        }
+        if (isBlank(userDTO.getFirstName())) {
+            throw new IllegalArgumentException("First name is required.");
+        }
+        if (isBlank(userDTO.getLastName())) {
+            throw new IllegalArgumentException("Last name is required.");
+        }
+        if (isBlank(userDTO.getEmail())) {
+            throw new IllegalArgumentException("Email is required.");
+        }
+    }
+
+    private void validateUniquenessForCreate(User user) {
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new IllegalArgumentException("Username already exists.");
+        }
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email already exists.");
+        }
+    }
+
+    private void validateUniquenessForUpdate(Long id, String username, String email) {
+        userRepository.findByUsername(username)
+                .ifPresent(existingUser -> {
+                    if (!existingUser.getId().equals(id)) {
+                        throw new IllegalArgumentException("Username already exists.");
+                    }
+                });
+
+        userRepository.findByEmail(email)
+                .ifPresent(existingUser -> {
+                    if (!existingUser.getId().equals(id)) {
+                        throw new IllegalArgumentException("Email already exists.");
+                    }
+                });
+    }
+
     private void checkPasswordStrength(String password) {
         if (password == null || !PASSWORD_PATTERN.matcher(password).matches()) {
             throw new IllegalArgumentException(
                     "Password must contain at least 8 characters, one uppercase letter, one number and one special character."
             );
         }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

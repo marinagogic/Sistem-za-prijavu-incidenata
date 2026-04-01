@@ -46,11 +46,6 @@ public class IncidentController {
         return incidentService.createIncident(request, null);
     }
 
-    @GetMapping
-    public List<IncidentResponse> getAllIncidents() {
-        return incidentService.getAllIncidents();
-    }
-
     @GetMapping("/approved")
     public List<IncidentResponse> getApprovedIncidents(
             @RequestParam(required = false) IncidentType type,

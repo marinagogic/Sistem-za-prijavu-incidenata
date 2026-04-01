@@ -30,4 +30,4 @@ eureka:
     fetch-registry: true
 
 jwt:
-  secret: mojTajniKljucKojiMoraBitiDovoljnoDugacak123456
+  secret: mojTajniKljucKojiMoraBitiBasMnogoDugacakZaHS512Algoritam123456789!ABCDEFghijklmnop

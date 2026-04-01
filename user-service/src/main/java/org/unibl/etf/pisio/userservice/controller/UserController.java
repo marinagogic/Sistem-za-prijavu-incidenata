@@ -59,41 +59,52 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> registerUser(@RequestBody RegisterDTO registerDTO) {
-        User newUser = new User();
-        newUser.setUsername(registerDTO.getUsername());
-        newUser.setPassword(registerDTO.getPassword());
-        newUser.setFirstName(registerDTO.getFirstName());
-        newUser.setLastName(registerDTO.getLastName());
-        newUser.setEmail(registerDTO.getEmail());
-        newUser.setRole(Role.USER);
+    public ResponseEntity<?> registerUser(@RequestBody RegisterDTO registerDTO) {
+        try {
+            User newUser = new User();
+            newUser.setUsername(registerDTO.getUsername());
+            newUser.setPassword(registerDTO.getPassword());
+            newUser.setFirstName(registerDTO.getFirstName());
+            newUser.setLastName(registerDTO.getLastName());
+            newUser.setEmail(registerDTO.getEmail());
+            newUser.setRole(Role.USER);
 
-        User createdUser = userService.create(newUser);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.toDTO(createdUser));
+            User createdUser = userService.create(newUser);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.toDTO(createdUser));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @PostMapping("/employee")
-    public ResponseEntity<UserDTO> addEmployee(@RequestBody User user) {
+    public ResponseEntity<?> addEmployee(@RequestBody User user) {
         if (user.getRole() == null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Role is required.");
         }
 
         boolean allowedRole = user.getRole() == Role.ADMIN || user.getRole() == Role.MODERATOR;
         if (!allowedRole) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Only ADMIN or MODERATOR roles are allowed.");
         }
 
-        User createdEmployee = userService.create(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.toDTO(createdEmployee));
+        try {
+            User createdEmployee = userService.create(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.toDTO(createdEmployee));
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUserData(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> updateUserData(@PathVariable Long id, @RequestBody UserDTO userDTO) {
         try {
             UserDTO updatedUser = userService.updateSimple(id, userDTO);
             return ResponseEntity.ok(updatedUser);
-        } catch (RuntimeException ex) {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException ex) {
+            if ("User not found.".equals(ex.getMessage())) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+            }
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 

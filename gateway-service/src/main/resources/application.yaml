@@ -6,15 +6,6 @@ spring:
     name: gateway-service
   config:
     import: configserver:http://config-server:8888
-  cloud:
-    gateway:
-      default-filters:
-        - PreserveHostHeader
-      routes:
-        - id: incident-service
-          uri: http://incident-service:8081
-          predicates:
-            - Path=/api/incidents/**
 
 eureka:
   client:
