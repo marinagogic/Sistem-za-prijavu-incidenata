@@ -87,7 +87,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                 || path.equals("/api/users")
                 || path.equals("/api/users/employee")
                 || path.equals("/api/users/internal/auth-user")
-                || (path.matches("^/api/users/\\d+$") && (method.equals("PUT") || method.equals("DELETE")));
+                || (path.matches("^/api/users/\\d+$") && method.equals("DELETE"));
     }
 
     private boolean isModeratorOrAdmin(String role) {

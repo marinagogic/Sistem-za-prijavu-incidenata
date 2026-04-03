@@ -2,6 +2,7 @@ package org.unibl.etf.pisio.userservice.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.unibl.etf.pisio.userservice.dto.AuthUserDTO;
 import org.unibl.etf.pisio.userservice.dto.RegisterDTO;
@@ -96,10 +97,37 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUserData(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> updateUserData(@PathVariable Long id,
+                                            @RequestBody UserDTO userDTO,
+                                            HttpServletRequest request) {
         try {
+            String userIdHeader = request.getHeader("X-User-Id");
+            String roleHeader = request.getHeader("X-Role");
+
+            if (userIdHeader == null || roleHeader == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Missing authentication headers.");
+            }
+
+            Long loggedInUserId;
+            try {
+                loggedInUserId = Long.parseLong(userIdHeader);
+            } catch (NumberFormatException ex) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid user id in header.");
+            }
+
+            boolean isAdmin = "ADMIN".equals(roleHeader);
+            boolean isOwner = loggedInUserId.equals(id);
+
+            if (!isAdmin && !isOwner) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Only admin or profile owner can update this user.");
+            }
+
             UserDTO updatedUser = userService.updateSimple(id, userDTO);
             return ResponseEntity.ok(updatedUser);
+
         } catch (IllegalArgumentException ex) {
             if ("User not found.".equals(ex.getMessage())) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());

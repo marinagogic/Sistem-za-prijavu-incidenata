@@ -1,15 +1,27 @@
 package org.unibl.etf.pisio.incidentservice.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.unibl.etf.pisio.incidentservice.model.enums.IncidentSubtype;
 import org.unibl.etf.pisio.incidentservice.model.enums.IncidentType;
 
 public class CreateIncidentRequest {
 
+    @NotNull(message = "Type is required.")
     private IncidentType type;
+
     private IncidentSubtype subtype;
+
+    @NotBlank(message = "Description is required.")
     private String description;
+
+    @NotBlank(message = "Address is required.")
     private String address;
+
+    @NotNull(message = "Latitude is required.")
     private Double latitude;
+
+    @NotNull(message = "Longitude is required.")
     private Double longitude;
 
     public CreateIncidentRequest() {

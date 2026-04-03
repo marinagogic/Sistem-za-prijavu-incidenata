@@ -31,14 +31,16 @@ public class IncidentService {
     }
 
     public IncidentResponse createIncident(CreateIncidentRequest request, MultipartFile image) throws IOException {
+        validateDescription(request.getDescription());
+        validateLocation(request.getAddress(), request.getLatitude(), request.getLongitude());
         validateSubtype(request.getType(), request.getSubtype());
 
         Incident incident = new Incident();
         incident.setType(request.getType());
         incident.setSubtype(request.getSubtype());
-        incident.setDescription(request.getDescription());
+        incident.setDescription(request.getDescription().trim());
         incident.setLocation(new Location(
-                request.getAddress(),
+                request.getAddress() != null ? request.getAddress().trim() : null,
                 request.getLatitude(),
                 request.getLongitude()
         ));
@@ -116,6 +118,38 @@ public class IncidentService {
                     return incidentRepository.save(incident);
                 })
                 .map(this::mapToResponse);
+    }
+
+    private void validateDescription(String description) {
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description is required.");
+        }
+    }
+
+    private void validateLocation(String address, Double latitude, Double longitude) {
+        boolean hasAddress = address != null && !address.trim().isEmpty();
+        boolean hasLatitude = latitude != null;
+        boolean hasLongitude = longitude != null;
+
+        if (!hasAddress && !hasLatitude && !hasLongitude) {
+            throw new IllegalArgumentException("Address or coordinates are required.");
+        }
+
+        if (hasLatitude && !hasLongitude) {
+            throw new IllegalArgumentException("Longitude is required when latitude is provided.");
+        }
+
+        if (!hasLatitude && hasLongitude) {
+            throw new IllegalArgumentException("Latitude is required when longitude is provided.");
+        }
+
+        if (hasLatitude && (latitude < -90 || latitude > 90)) {
+            throw new IllegalArgumentException("Latitude must be between -90 and 90.");
+        }
+
+        if (hasLongitude && (longitude < -180 || longitude > 180)) {
+            throw new IllegalArgumentException("Longitude must be between -180 and 180.");
+        }
     }
 
     private void validateSubtype(IncidentType type, IncidentSubtype subtype) {

@@ -1,8 +1,11 @@
 package org.unibl.etf.pisio.incidentservice.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.unibl.etf.pisio.incidentservice.dto.CreateIncidentRequest;
@@ -32,7 +35,7 @@ public class IncidentController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public IncidentResponse createIncident(
-            @ModelAttribute CreateIncidentRequest request,
+            @Valid @ModelAttribute CreateIncidentRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) throws IOException {
         return incidentService.createIncident(request, image);
@@ -41,7 +44,7 @@ public class IncidentController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public IncidentResponse createIncidentJson(
-            @RequestBody CreateIncidentRequest request
+            @Valid @RequestBody CreateIncidentRequest request
     ) throws IOException {
         return incidentService.createIncident(request, null);
     }
@@ -73,5 +76,21 @@ public class IncidentController {
         return incidentService.rejectIncident(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        FieldError fieldError = ex.getBindingResult().getFieldError();
+
+        if (fieldError != null) {
+            return ResponseEntity.badRequest().body(fieldError.getDefaultMessage());
+        }
+
+        return ResponseEntity.badRequest().body("Validation failed.");
     }
 }
