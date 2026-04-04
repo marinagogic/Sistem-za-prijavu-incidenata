@@ -1,0 +1,155 @@
+.incidents-layout {
+  min-height: 100vh;
+  display: flex;
+  background: linear-gradient(135deg, #fff8fc 0%, #fff1f7 100%);
+}
+
+.incidents-main {
+  flex: 1;
+  padding: 28px;
+}
+
+.filters-card {
+  background: #fff;
+  border: 1px solid #f6d4e5;
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 8px 24px rgba(220, 120, 170, 0.08);
+  margin-bottom: 24px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-field label {
+  font-weight: 700;
+  color: #5f4150;
+}
+
+.filter-field input,
+.filter-field select {
+  width: 100%;
+  border: 1.5px solid #e6c7d5;
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 15px;
+  background: #fffafb;
+  color: #4e3340;
+  outline: none;
+}
+
+.filters-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.incidents-content {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr;
+  gap: 24px;
+}
+
+.incidents-map-card,
+.incidents-list-card {
+  background: #fff;
+  border: 1px solid #f6d4e5;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(220, 120, 170, 0.08);
+}
+
+.incidents-section-header {
+  margin-bottom: 18px;
+}
+
+.incidents-section-header h3 {
+  margin: 0 0 10px 0;
+  color: #d63384;
+  font-size: 24px;
+}
+
+.incidents-section-header p {
+  margin: 0;
+  color: #7d6270;
+}
+
+.incidents-map-wrapper {
+  width: 100%;
+  height: 560px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #f6d4e5;
+}
+
+.incidents-map {
+  width: 100%;
+  height: 100%;
+}
+
+.incident-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.incident-item {
+  border: 1px solid #f3d0df;
+  border-radius: 18px;
+  padding: 16px;
+  background: #fff9fc;
+}
+
+.incident-item h4 {
+  margin: 0 0 10px 0;
+  color: #b52f69;
+}
+
+.incident-item p {
+  margin: 6px 0;
+  color: #6c5661;
+}
+
+.incident-item.empty {
+  text-align: center;
+  padding: 28px;
+}
+
+@media (max-width: 1200px) {
+  .filters-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .incidents-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 850px) {
+  .incidents-layout {
+    flex-direction: column;
+  }
+
+  .incidents-main {
+    padding: 18px;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .incidents-map-wrapper {
+    height: 360px;
+  }
+}

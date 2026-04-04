@@ -28,6 +28,10 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
         String method = exchange.getRequest().getMethod().name();
 
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            return chain.filter(exchange);
+        }
+
         if (isPublicRoute(path, method)) {
             return chain.filter(exchange);
         }
@@ -77,6 +81,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     private boolean isPublicRoute(String path, String method) {
         return path.startsWith("/api/auth/")
                 || path.equals("/api/incidents/approved")
+                || path.equals("/api/incidents/test")
                 || (path.equals("/api/incidents") && method.equals("POST"));
     }
 

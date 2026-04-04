@@ -1,0 +1,252 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #fff8fc;
+  color: #4a3140;
+}
+
+.home-layout {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff8fc 0%, #fff1f7 100%);
+}
+
+.sidebar {
+  width: 270px;
+  background: #fffafd;
+  border-right: 1px solid #f4d6e5;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebar-link {
+  text-decoration: none;
+  padding: 16px 18px;
+  border-radius: 16px;
+  color: #c23f78;
+  background: transparent;
+  font-weight: 600;
+  transition: 0.2s;
+  border: 1px solid transparent;
+}
+
+.sidebar-link:hover {
+  background: #ffe7f1;
+  border-color: #f7c6da;
+}
+
+.sidebar-link.active {
+  background: #ffe0ed;
+  border-color: #f3bfd5;
+  box-shadow: 0 4px 14px rgba(214, 51, 132, 0.08);
+}
+
+.main-content {
+  flex: 1;
+  padding: 28px;
+}
+
+.topbar {
+  background: #fff;
+  border: 1px solid #f6d4e5;
+  border-radius: 22px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(220, 120, 170, 0.08);
+  margin-bottom: 24px;
+}
+
+.topbar h2 {
+  margin: 0;
+  color: #d63384;
+  font-size: 30px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 14px;
+}
+
+.btn {
+  text-decoration: none;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 22px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff5fa2, #ff8cc0);
+  color: white;
+  box-shadow: 0 8px 20px rgba(255, 95, 162, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: white;
+  color: #d63384;
+  border: 1px solid #e8a7c5;
+}
+
+.btn-outline:hover {
+  background: #fff0f7;
+}
+
+.btn-soft {
+  background: #ffe7f1;
+  color: #c23773;
+  border: 1px solid #f7c7dc;
+}
+
+.big-btn {
+  min-width: 180px;
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  background: #fff;
+  border: 1px solid #f6d4e5;
+  border-radius: 26px;
+  padding: 34px;
+  box-shadow: 0 10px 28px rgba(220, 120, 170, 0.08);
+  margin-bottom: 26px;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #ffe3f0;
+  color: #c83276;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.hero-left h3 {
+  margin: 0 0 14px 0;
+  font-size: 36px;
+  color: #b52f69;
+}
+
+.hero-left p {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #7a5b68;
+  max-width: 760px;
+}
+
+.hero-left-full {
+  width: 100%;
+}
+
+.hero-buttons {
+  margin-top: 24px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.home-map-section {
+  background: #fff;
+  border: 1px solid #f6d4e5;
+  border-radius: 26px;
+  padding: 28px;
+  box-shadow: 0 10px 28px rgba(220, 120, 170, 0.08);
+}
+
+.home-map-header {
+  margin-bottom: 18px;
+}
+
+.home-map-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  color: #b52f69;
+}
+
+.home-map-header p {
+  margin: 0;
+  color: #7a5b68;
+  line-height: 1.6;
+}
+
+.home-map-card {
+  width: 100%;
+  height: 420px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid #f6d4e5;
+  background: #fff;
+}
+
+.home-map {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 850px) {
+  .home-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #f4d6e5;
+    position: static;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .topbar-actions {
+    width: 100%;
+  }
+
+  .home-map-card {
+    height: 320px;
+  }
+
+  .hero-left h3 {
+    font-size: 28px;
+  }
+
+  .topbar h2 {
+    font-size: 24px;
+  }
+}
