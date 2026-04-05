@@ -7,9 +7,18 @@ import ReportIncidentPage from "./pages/guest/ReportIncidentPage";
 
 import ModeratorDashboardPage from "./pages/moderator/ModeratorDashboardPage";
 import ModeratorPendingPage from "./pages/moderator/ModeratorPendingPage";
-import ModeratorMapPage from "./pages/moderator/ModeratorMapPage";
 import ModeratorApprovedPage from "./pages/moderator/ModeratorApprovedPage";
 import ModeratorProfilePage from "./pages/moderator/ModeratorProfilePage";
+
+import UserHomePage from "./pages/user/UserHomePage";
+import UserIncidentsPage from "./pages/user/UserIncidentsPage";
+import UserReportIncidentPage from "./pages/user/UserReportIncidentPage";
+import UserProfilePage from "./pages/user/UserProfilePage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
+
 function App() {
   return (
     <BrowserRouter>
@@ -24,6 +33,14 @@ function App() {
         <Route path="/moderator/pending" element={<ModeratorPendingPage />} />
         <Route path="/moderator/approved" element={<ModeratorApprovedPage />} />
         <Route path="/moderator/profile" element={<ModeratorProfilePage />} />
+
+        <Route path="/user" element={<UserHomePage />} />
+        <Route path="/user/incidents" element={<UserIncidentsPage />} />
+        <Route path="/user/report" element={<UserReportIncidentPage />} />
+        <Route path="/user/profile" element={<UserProfilePage />} />
+        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+        <Route path="/admin/profile" element={<AdminProfilePage />} />
       </Routes>
     </BrowserRouter>
   );

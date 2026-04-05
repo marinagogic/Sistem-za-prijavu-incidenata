@@ -34,6 +34,15 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.getAll().stream()
+                .map(userService::toDTO)
+                .toList();
+
+        return ResponseEntity.ok(users);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> findUserById(@PathVariable Long id) {
         Optional<User> optionalUser = userService.getById(id);
@@ -83,9 +92,13 @@ public class UserController {
             return ResponseEntity.badRequest().body("Role is required.");
         }
 
-        boolean allowedRole = user.getRole() == Role.ADMIN || user.getRole() == Role.MODERATOR;
+        boolean allowedRole =
+                user.getRole() == Role.USER ||
+                        user.getRole() == Role.MODERATOR ||
+                        user.getRole() == Role.ADMIN;
+
         if (!allowedRole) {
-            return ResponseEntity.badRequest().body("Only ADMIN or MODERATOR roles are allowed.");
+            return ResponseEntity.badRequest().body("Only USER, MODERATOR or ADMIN roles are allowed.");
         }
 
         try {

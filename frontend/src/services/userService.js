@@ -15,3 +15,11 @@ export const updateUser = (id, userData) => {
     },
   });
 };
+
+export const getAllUsers = () => {
+  return api.get("/api/users/all");
+};
+
+export const createEmployee = (userData) => {
+  return api.post("/api/users/employee", userData);
+};

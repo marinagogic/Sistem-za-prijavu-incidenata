@@ -88,7 +88,7 @@ function LoginPage() {
         return;
       }
 
-      navigate("/");
+      navigate("/user");
     } catch (error) {
       setMessage(error?.response?.data || "Login nije uspio.");
     }
