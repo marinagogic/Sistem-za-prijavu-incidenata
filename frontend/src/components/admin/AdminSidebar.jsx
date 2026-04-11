@@ -24,6 +24,15 @@ function AdminSidebar() {
         </NavLink>
 
         <NavLink
+          to="/admin/analytics"
+          className={({ isActive }) =>
+            isActive ? "sidebar-link active" : "sidebar-link"
+          }
+        >
+          Analitika
+        </NavLink>
+
+        <NavLink
           to="/admin/profile"
           className={({ isActive }) =>
             isActive ? "sidebar-link active" : "sidebar-link"

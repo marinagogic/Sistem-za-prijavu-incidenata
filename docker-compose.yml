@@ -69,6 +69,7 @@ services:
     volumes:
       - ./uploads:/app/uploads
 
+
   user-service:
     build: ./user-service
     container_name: user-service
@@ -106,6 +107,16 @@ services:
       user-service:
         condition: service_started
       auth-service:
+        condition: service_started
+  analytics-service:
+    build: ./analytics-service
+    container_name: analytics-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+      incident-service:
         condition: service_started
 
 volumes:

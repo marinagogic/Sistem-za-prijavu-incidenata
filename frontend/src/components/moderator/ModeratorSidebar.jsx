@@ -33,6 +33,15 @@ function ModeratorSidebar() {
         </NavLink>
 
         <NavLink
+          to="/moderator/analytics"
+          className={({ isActive }) =>
+            isActive ? "sidebar-link active" : "sidebar-link"
+          }
+        >
+          Analitika
+        </NavLink>
+
+        <NavLink
           to="/moderator/profile"
           className={({ isActive }) =>
             isActive ? "sidebar-link active" : "sidebar-link"

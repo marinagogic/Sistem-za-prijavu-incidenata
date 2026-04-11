@@ -70,7 +70,10 @@ public class IncidentController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
+    @GetMapping("/all")
+    public List<IncidentResponse> getAllIncidents() {
+        return incidentService.getAllIncidents();
+    }
     @PutMapping("/{id}/reject")
     public ResponseEntity<IncidentResponse> rejectIncident(@PathVariable Long id) {
         return incidentService.rejectIncident(id)
@@ -93,4 +96,5 @@ public class IncidentController {
 
         return ResponseEntity.badRequest().body("Validation failed.");
     }
+
 }
