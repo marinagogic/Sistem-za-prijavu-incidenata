@@ -124,7 +124,16 @@ function ModeratorPendingPage() {
                   )}
 
                   {incident.imagePath && (
-                    <p><strong>Slika:</strong> {incident.imagePath}</p>
+                    <div className="moderator-pending-image-wrapper">
+                      <img
+                        src={`http://localhost:8080${incident.imagePath}`}
+                        alt="Slika incidenta"
+                        className="moderator-pending-image"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    </div>
                   )}
 
                   <div className="moderator-pending-actions">

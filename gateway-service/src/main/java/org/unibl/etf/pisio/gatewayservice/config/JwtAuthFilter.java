@@ -82,6 +82,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         return path.startsWith("/api/auth/")
                 || path.equals("/api/incidents/approved")
                 || path.equals("/api/incidents/test")
+                || path.startsWith("/uploads/")
                 || (path.equals("/api/incidents") && method.equals("POST"));
     }
 

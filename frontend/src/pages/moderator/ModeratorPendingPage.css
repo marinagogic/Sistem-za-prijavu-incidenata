@@ -103,7 +103,22 @@
   text-align: center;
   padding: 28px;
 }
+.moderator-pending-image-wrapper {
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #f3d0df;
+  background: #fff;
+}
 
+.moderator-pending-image {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+}
 @media (max-width: 1200px) {
   .moderator-pending-content {
     grid-template-columns: 1fr;

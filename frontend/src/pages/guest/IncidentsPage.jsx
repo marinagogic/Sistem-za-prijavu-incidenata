@@ -80,19 +80,39 @@ function IncidentsPage() {
                 </div>
               )}
 
-              {incidents.map((incident) => (
-                <div className="incident-item" key={incident.id}>
-                  <h4>
-                    {incident.type} {incident.subtype ? `- ${incident.subtype}` : ""}
-                  </h4>
-                  <p><strong>Adresa:</strong> {incident.address}</p>
-                  <p><strong>Opis:</strong> {incident.description}</p>
-                  <p><strong>Koordinate:</strong> {incident.latitude}, {incident.longitude}</p>
-                  {incident.createdAt && (
-                    <p><strong>Vrijeme:</strong> {incident.createdAt}</p>
-                  )}
-                </div>
-              ))}
+              {incidents.map((incident) => {
+                const imageUrl = incident.imagePath
+                  ? `http://localhost:8080${incident.imagePath}`
+                  : null;
+
+                return (
+                  <div className="incident-item" key={incident.id}>
+                    <h4>
+                      {incident.type} {incident.subtype ? `- ${incident.subtype}` : ""}
+                    </h4>
+
+                    {imageUrl && (
+                      <div className="incident-image-wrapper">
+                        <img
+                          src={imageUrl}
+                          alt="Slika incidenta"
+                          className="incident-image"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    <p><strong>Adresa:</strong> {incident.address}</p>
+                    <p><strong>Opis:</strong> {incident.description}</p>
+                    <p><strong>Koordinate:</strong> {incident.latitude}, {incident.longitude}</p>
+                    {incident.createdAt && (
+                      <p><strong>Vrijeme:</strong> {incident.createdAt}</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

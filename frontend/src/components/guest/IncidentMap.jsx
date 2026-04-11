@@ -28,6 +28,14 @@ function IncidentMap({
   onMapClick = null,
   className = "shared-map",
 }) {
+  const validMarkers = markers.filter(
+    (marker) =>
+      marker.latitude !== null &&
+      marker.latitude !== undefined &&
+      marker.longitude !== null &&
+      marker.longitude !== undefined
+  );
+
   return (
     <MapContainer center={center} zoom={zoom} scrollWheelZoom={true} className={className}>
       <TileLayer
@@ -37,24 +45,46 @@ function IncidentMap({
 
       <ClickHandler onMapClick={onMapClick} />
 
-      {markers.map((marker) => (
-        <Marker
-          key={marker.id}
-          position={[Number(marker.latitude), Number(marker.longitude)]}
-        >
-          <Popup>
-            <div>
-              <strong>{marker.type || "Incident"}</strong>
-              <br />
-              {marker.subtype || ""}
-              <br />
-              {marker.address || ""}
-              <br />
-              {marker.description || ""}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
+      {validMarkers.map((marker) => {
+        const imageUrl = marker.imagePath
+          ? `http://localhost:8080${marker.imagePath}`
+          : null;
+
+        return (
+          <Marker
+            key={marker.id}
+            position={[Number(marker.latitude), Number(marker.longitude)]}
+          >
+            <Popup maxWidth={260} minWidth={220}>
+              <div className="incident-popup">
+                <div className="incident-popup-title">
+                  {marker.type || "Incident"}
+                  {marker.subtype ? ` - ${marker.subtype}` : ""}
+                </div>
+
+                {imageUrl && (
+                  <img
+                    src={imageUrl}
+                    alt="Slika incidenta"
+                    className="incident-popup-image"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                )}
+
+                {marker.address && (
+                  <p><strong>Adresa:</strong> {marker.address}</p>
+                )}
+
+                {marker.description && (
+                  <p><strong>Opis:</strong> {marker.description}</p>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
     </MapContainer>
   );
 }
