@@ -4,6 +4,7 @@ import GuestTopbar from "../../components/guest/GuestTopbar";
 import IncidentMap from "../../components/guest/IncidentMap";
 import { createIncident } from "../../services/incidentService";
 import "./ReportIncidentPage.css";
+
 const subtypeOptions = {
   FIRE: [
     "BUILDING_FIRE",
@@ -104,6 +105,37 @@ function ReportIncidentPage() {
     }));
   };
 
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setMessage("Geolokacija nije podržana u ovom browseru.");
+      return;
+    }
+
+    setMessage("Učitavanje trenutne lokacije...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        setFormData((prev) => ({
+          ...prev,
+          latitude: latitude.toFixed(6),
+          longitude: longitude.toFixed(6),
+        }));
+
+        setMessage("Trenutna lokacija je uspješno učitana.");
+      },
+      () => {
+        setMessage("Nije moguće pristupiti trenutnoj lokaciji.");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -167,7 +199,18 @@ function ReportIncidentPage() {
           <div className="report-map-card">
             <div className="report-map-header">
               <h3>Izaberi lokaciju na mapi</h3>
-              <p>Klikni na mapu da automatski popuniš latitude i longitude.</p>
+              <p>
+                Klikni na mapu da ručno odabereš lokaciju ili koristi svoju
+                trenutnu lokaciju.
+              </p>
+
+              <button
+                type="button"
+                className="report-btn report-btn-outline report-location-btn"
+                onClick={handleUseCurrentLocation}
+              >
+                Koristi moju lokaciju
+              </button>
             </div>
 
             <div className="report-map-wrapper">

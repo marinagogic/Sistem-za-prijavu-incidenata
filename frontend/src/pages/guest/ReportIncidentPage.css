@@ -166,6 +166,15 @@
   border: 1px solid #efbfd3;
 }
 
+.report-location-btn {
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.report-location-btn:hover {
+  background: #fff0f7;
+}
+
 @media (max-width: 1100px) {
   .report-page {
     flex-direction: column;
@@ -175,7 +184,6 @@
     grid-template-columns: 1fr;
   }
 }
-
 @media (max-width: 760px) {
   .report-grid,
   .report-actions {
