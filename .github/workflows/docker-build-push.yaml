@@ -19,6 +19,7 @@ jobs:
           - user-service
           - auth-service
           - gateway-service
+          - analytics-service
 
     steps:
       - name: Checkout code
