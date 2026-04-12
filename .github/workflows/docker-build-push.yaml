@@ -20,6 +20,7 @@ jobs:
           - auth-service
           - gateway-service
           - analytics-service
+          - alert-service
 
     steps:
       - name: Checkout code
