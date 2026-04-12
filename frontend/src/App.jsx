@@ -10,6 +10,7 @@ import ModeratorPendingPage from "./pages/moderator/ModeratorPendingPage";
 import ModeratorApprovedPage from "./pages/moderator/ModeratorApprovedPage";
 import ModeratorProfilePage from "./pages/moderator/ModeratorProfilePage";
 import ModeratorAnalyticsPage from "./pages/moderator/ModeratorAnalyticsPage";
+import ModeratorAlertsPage from "./pages/moderator/ModeratorAlertsPage";
 
 import UserHomePage from "./pages/user/UserHomePage";
 import UserIncidentsPage from "./pages/user/UserIncidentsPage";
@@ -36,6 +37,7 @@ function App() {
         <Route path="/moderator/approved" element={<ModeratorApprovedPage />} />
         <Route path="/moderator/profile" element={<ModeratorProfilePage />} />
         <Route path="/moderator/analytics" element={<ModeratorAnalyticsPage />} />
+        <Route path="/moderator/alerts" element={<ModeratorAlertsPage />} />
 
         <Route path="/user" element={<UserHomePage />} />
         <Route path="/user/incidents" element={<UserIncidentsPage />} />

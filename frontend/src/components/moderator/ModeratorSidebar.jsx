@@ -42,6 +42,15 @@ function ModeratorSidebar() {
         </NavLink>
 
         <NavLink
+          to="/moderator/alerts"
+          className={({ isActive }) =>
+            isActive ? "sidebar-link active" : "sidebar-link"
+          }
+        >
+          Alert settings
+        </NavLink>
+
+        <NavLink
           to="/moderator/profile"
           className={({ isActive }) =>
             isActive ? "sidebar-link active" : "sidebar-link"

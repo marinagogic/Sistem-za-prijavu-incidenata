@@ -10,7 +10,7 @@ import org.unibl.etf.pisio.incidentservice.model.enums.IncidentStatus;
 import org.unibl.etf.pisio.incidentservice.model.enums.IncidentSubtype;
 import org.unibl.etf.pisio.incidentservice.model.enums.IncidentType;
 import org.unibl.etf.pisio.incidentservice.repository.IncidentRepository;
-
+import org.unibl.etf.pisio.incidentservice.dto.AlertCandidateResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,6 +68,30 @@ public class IncidentService {
                 .toList();
     }
 
+    public List<AlertCandidateResponse> getAlertCandidates(Integer days) {
+        LocalDateTime threshold = LocalDateTime.now().minusDays(days);
+
+        return incidentRepository.findAll()
+                .stream()
+                .filter(incident -> incident.getCreatedAt() != null)
+                .filter(incident -> !incident.getCreatedAt().isBefore(threshold))
+                .filter(incident -> incident.getLocation() != null)
+                .filter(incident -> incident.getLocation().getLatitude() != null)
+                .filter(incident -> incident.getLocation().getLongitude() != null)
+                .map(incident -> {
+                    AlertCandidateResponse dto = new AlertCandidateResponse();
+                    dto.setId(incident.getId());
+                    dto.setType(incident.getType() != null ? incident.getType().name() : null);
+                    dto.setSubtype(incident.getSubtype() != null ? incident.getSubtype().name() : null);
+                    dto.setStatus(incident.getStatus() != null ? incident.getStatus().name() : null);
+                    dto.setAddress(incident.getLocation().getAddress());
+                    dto.setLatitude(incident.getLocation().getLatitude());
+                    dto.setLongitude(incident.getLocation().getLongitude());
+                    dto.setCreatedAt(incident.getCreatedAt());
+                    return dto;
+                })
+                .toList();
+    }
     public List<IncidentResponse> getPendingIncidents() {
         return incidentRepository.findByStatus(IncidentStatus.PENDING)
                 .stream()

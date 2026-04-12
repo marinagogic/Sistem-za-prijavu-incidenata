@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.unibl.etf.pisio.incidentservice.dto.AlertCandidateResponse;
 import org.unibl.etf.pisio.incidentservice.dto.CreateIncidentRequest;
 import org.unibl.etf.pisio.incidentservice.dto.IncidentResponse;
 import org.unibl.etf.pisio.incidentservice.model.enums.IncidentSubtype;
@@ -64,16 +65,23 @@ public class IncidentController {
         return incidentService.getPendingIncidents();
     }
 
+    @GetMapping("/all")
+    public List<IncidentResponse> getAllIncidents() {
+        return incidentService.getAllIncidents();
+    }
+
+    @GetMapping("/alert-candidates")
+    public List<AlertCandidateResponse> getAlertCandidates(@RequestParam Integer days) {
+        return incidentService.getAlertCandidates(days);
+    }
+
     @PutMapping("/{id}/approve")
     public ResponseEntity<IncidentResponse> approveIncident(@PathVariable Long id) {
         return incidentService.approveIncident(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    @GetMapping("/all")
-    public List<IncidentResponse> getAllIncidents() {
-        return incidentService.getAllIncidents();
-    }
+
     @PutMapping("/{id}/reject")
     public ResponseEntity<IncidentResponse> rejectIncident(@PathVariable Long id) {
         return incidentService.rejectIncident(id)
@@ -96,5 +104,4 @@ public class IncidentController {
 
         return ResponseEntity.badRequest().body("Validation failed.");
     }
-
 }

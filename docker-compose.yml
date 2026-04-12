@@ -56,6 +56,23 @@ services:
       retries: 15
       start_period: 30s
 
+  alert-db:
+    image: mysql:8.0
+    container_name: alert-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: alert_db
+    ports:
+      - "3309:3306"
+    volumes:
+      - alert_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 30s
+
   incident-service:
     build: ./incident-service
     container_name: incident-service
@@ -68,7 +85,6 @@ services:
         condition: service_healthy
     volumes:
       - ./uploads:/app/uploads
-
 
   user-service:
     build: ./user-service
@@ -92,6 +108,30 @@ services:
       user-service:
         condition: service_started
 
+  analytics-service:
+    build: ./analytics-service
+    container_name: analytics-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+      incident-service:
+        condition: service_started
+
+  alert-service:
+    build: ./alert-service
+    container_name: alert-service
+    restart: on-failure
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+      incident-service:
+        condition: service_started
+      alert-db:
+        condition: service_healthy
   gateway-service:
     build: ./gateway-service
     container_name: gateway-service
@@ -108,17 +148,12 @@ services:
         condition: service_started
       auth-service:
         condition: service_started
-  analytics-service:
-    build: ./analytics-service
-    container_name: analytics-service
-    depends_on:
-      config-server:
-        condition: service_healthy
-      discovery-service:
+      analytics-service:
         condition: service_started
-      incident-service:
+      alert-service:
         condition: service_started
 
 volumes:
   incident_mysql_data:
   user_mysql_data:
+  alert_mysql_data:
