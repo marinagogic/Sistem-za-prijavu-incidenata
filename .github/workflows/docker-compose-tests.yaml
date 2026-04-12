@@ -66,6 +66,16 @@ jobs:
             exit 1
           fi
 
+      - name: Check alert settings route through gateway
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/incident-alerts/settings)
+          echo "Alert settings endpoint returned HTTP $code"
+          if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ] || [ "$code" = "404" ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
       - name: Show logs if failure
         if: failure()
         run: docker compose logs
