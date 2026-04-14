@@ -123,7 +123,7 @@ function ModeratorAnalyticsPage() {
 
     const width = 560;
     const height = 280;
-    const padding = 24;
+    const padding = 42;
 
     const latRange = Math.max(mapBounds.maxLat - mapBounds.minLat, 0.01);
     const lngRange = Math.max(mapBounds.maxLng - mapBounds.minLng, 0.01);
@@ -296,28 +296,33 @@ function ModeratorAnalyticsPage() {
             ) : (
               <div className="moderator-map-box">
                 <svg viewBox="0 0 560 280" className="moderator-map-chart">
-                  <rect x="0" y="0" width="560" height="280" rx="18" fill="#fff7fb" />
-                  <path
-                    d="M40 220 C120 150, 160 180, 240 130 S400 100, 520 60"
-                    fill="none"
-                    stroke="#f4bfd5"
-                    strokeWidth="10"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M60 80 C140 120, 220 40, 320 90 S450 160, 520 210"
-                    fill="none"
-                    stroke="#f8d8e6"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                  />
+                  <defs>
+                    <pattern
+                      id="mapGrid"
+                      width="40"
+                      height="40"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M 40 0 L 0 0 0 40"
+                        fill="none"
+                        stroke="#f3dde7"
+                        strokeWidth="1"
+                      />
+                    </pattern>
+                  </defs>
+
+                  <rect x="0" y="0" width="560" height="280" rx="20" fill="#fffafc" />
+                  <rect x="0" y="0" width="560" height="280" rx="20" fill="url(#mapGrid)" />
 
                   {mapBounds?.points.map((point, index) => {
                     const { x, y } = projectMapPoint(point.latitude, point.longitude);
+
                     return (
                       <g key={`${point.latitude}-${point.longitude}-${index}`}>
-                        <circle cx={x} cy={y} r="7" fill="#d63384" opacity="0.9" />
-                        <circle cx={x} cy={y} r="14" fill="#d63384" opacity="0.15" />
+                        <circle cx={x} cy={y} r="10" fill="#d63384" opacity="0.12" />
+                        <circle cx={x} cy={y} r="6" fill="#f062a6" opacity="0.22" />
+                        <circle cx={x} cy={y} r="3.5" fill="#d63384" />
                       </g>
                     );
                   })}
