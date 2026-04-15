@@ -24,6 +24,15 @@ function ModeratorSidebar() {
         </NavLink>
 
         <NavLink
+          to="/moderator/similar-groups"
+          className={({ isActive }) =>
+            isActive ? "sidebar-link active" : "sidebar-link"
+          }
+        >
+          Slične prijave
+        </NavLink>
+
+        <NavLink
           to="/moderator/approved"
           className={({ isActive }) =>
             isActive ? "sidebar-link active" : "sidebar-link"

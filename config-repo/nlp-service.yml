@@ -1,0 +1,20 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: nlp-service
+
+incident-service:
+  url: http://incident-service:8081/api/incidents
+
+nlp:
+  text-threshold: 0.35
+  min-group-size: 2
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true

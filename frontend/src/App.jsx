@@ -4,7 +4,7 @@ import IncidentsPage from "./pages/guest/IncidentsPage";
 import LoginPage from "./pages/guest/LoginPage";
 import RegisterPage from "./pages/guest/RegisterPage";
 import ReportIncidentPage from "./pages/guest/ReportIncidentPage";
-
+import ModeratorSimilarGroupsPage from "./pages/moderator/ModeratorSimilarGroupsPage";
 import ModeratorDashboardPage from "./pages/moderator/ModeratorDashboardPage";
 import ModeratorPendingPage from "./pages/moderator/ModeratorPendingPage";
 import ModeratorApprovedPage from "./pages/moderator/ModeratorApprovedPage";
@@ -38,7 +38,10 @@ function App() {
         <Route path="/moderator/profile" element={<ModeratorProfilePage />} />
         <Route path="/moderator/analytics" element={<ModeratorAnalyticsPage />} />
         <Route path="/moderator/alerts" element={<ModeratorAlertsPage />} />
-
+<Route
+  path="/moderator/similar-groups"
+  element={<ModeratorSimilarGroupsPage />}
+/>
         <Route path="/user" element={<UserHomePage />} />
         <Route path="/user/incidents" element={<UserIncidentsPage />} />
         <Route path="/user/report" element={<UserReportIncidentPage />} />

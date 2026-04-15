@@ -118,7 +118,16 @@ services:
         condition: service_started
       incident-service:
         condition: service_started
-
+  nlp-service:
+    build: ./nlp-service
+    container_name: nlp-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-service:
+        condition: service_started
+      incident-service:
+        condition: service_started
   alert-service:
     build: ./alert-service
     container_name: alert-service
@@ -151,6 +160,8 @@ services:
       analytics-service:
         condition: service_started
       alert-service:
+        condition: service_started
+      nlp-service:
         condition: service_started
 
 volumes:
