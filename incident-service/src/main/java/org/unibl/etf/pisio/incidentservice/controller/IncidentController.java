@@ -88,7 +88,16 @@ public class IncidentController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteIncident(@PathVariable Long id) {
+        boolean deleted = incidentService.deleteIncident(id);
 
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.notFound().build();
+    }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());

@@ -92,6 +92,31 @@ public class IncidentService {
                 })
                 .toList();
     }
+    public boolean deleteIncident(Long id) {
+        Optional<Incident> incidentOptional = incidentRepository.findById(id);
+
+        if (incidentOptional.isEmpty()) {
+            return false;
+        }
+
+        Incident incident = incidentOptional.get();
+
+        if (incident.getImagePath() != null && !incident.getImagePath().isBlank()) {
+            try {
+                String relativePath = incident.getImagePath().startsWith("/")
+                        ? incident.getImagePath().substring(1)
+                        : incident.getImagePath();
+
+                Path imagePath = Paths.get(relativePath).toAbsolutePath().normalize();
+                Files.deleteIfExists(imagePath);
+            } catch (IOException e) {
+                System.err.println("Greška pri brisanju slike: " + e.getMessage());
+            }
+        }
+
+        incidentRepository.delete(incident);
+        return true;
+    }
     public List<IncidentResponse> getPendingIncidents() {
         return incidentRepository.findByStatus(IncidentStatus.PENDING)
                 .stream()

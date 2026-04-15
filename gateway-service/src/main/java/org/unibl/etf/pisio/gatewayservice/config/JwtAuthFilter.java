@@ -90,6 +90,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         return path.equals("/api/incidents/pending")
                 || (path.matches("^/api/incidents/\\d+/approve$") && method.equals("PUT"))
                 || (path.matches("^/api/incidents/\\d+/reject$") && method.equals("PUT"))
+                || (path.matches("^/api/incidents/\\d+$") && method.equals("DELETE"))
                 || path.equals("/api/users")
                 || path.equals("/api/users/employee")
                 || path.startsWith("/api/analytics/")
