@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Docker Compose API Tests
 
 on:
   push:
@@ -7,38 +7,89 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  compose-test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        service:
-          - config-server
-          - discovery-service
-          - incident-service
-          - user-service
-          - auth-service
-          - gateway-service
-          - analytics-service
-          - alert-service
-          - nlp-service
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Start services
+        run: docker compose up -d --build
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Show running containers
+        run: docker ps
 
-      - name: Build and push ${{ matrix.service }}
-        uses: docker/build-push-action@v6
-        with:
-          context: ./${{ matrix.service }}
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest
+      - name: Wait for services
+        run: sleep 90
+
+      - name: Check discovery-service
+        run: curl -f http://localhost:8761
+
+      - name: Check gateway root is reachable
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/)
+          echo "Gateway returned HTTP $code"
+          if [ "$code" = "200" ] || [ "$code" = "404" ] || [ "$code" = "403" ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+      - name: Check incidents route through gateway
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/incidents/)
+          echo "Incidents endpoint returned HTTP $code"
+          if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ] || [ "$code" = "404" ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+      - name: Check auth route through gateway
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/auth/)
+          echo "Auth endpoint returned HTTP $code"
+          if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ] || [ "$code" = "404" ] || [ "$code" = "405" ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+      - name: Check analytics route through gateway
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/analytics/summary)
+          echo "Analytics endpoint returned HTTP $code"
+          if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ] || [ "$code" = "404" ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+      - name: Check alert settings route through gateway
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/incident-alerts/settings)
+          echo "Alert settings endpoint returned HTTP $code"
+          if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ] || [ "$code" = "404" ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+      - name: Check NLP route through gateway
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/nlp/similar-groups)
+          echo "NLP endpoint returned HTTP $code"
+          if [ "$code" = "200" ] || [ "$code" = "401" ] || [ "$code" = "403" ] || [ "$code" = "404" ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+      - name: Show logs if failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
