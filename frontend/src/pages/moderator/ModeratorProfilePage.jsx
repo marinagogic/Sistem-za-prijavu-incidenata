@@ -22,7 +22,7 @@ function ModeratorProfilePage() {
       const userId = localStorage.getItem("userId");
 
       if (!userId) {
-        setMessage("Nedostaje userId u localStorage.");
+        setMessage("Nedostaje Vam userId u localStorage.");
         setLoading(false);
         return;
       }
