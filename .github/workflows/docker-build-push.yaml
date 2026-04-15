@@ -21,6 +21,7 @@ jobs:
           - gateway-service
           - analytics-service
           - alert-service
+          - nlp-service
 
     steps:
       - name: Checkout code
