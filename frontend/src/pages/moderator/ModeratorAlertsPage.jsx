@@ -32,6 +32,53 @@ function ModeratorAlertsPage() {
 
   const moderatorId = localStorage.getItem("userId");
 
+  const formatAlertDescription = (alert) => {
+    const incidentCount = alert.incidentCount ?? settings.minIncidentCount;
+    const timeWindowHours = alert.timeWindowHours ?? settings.timeWindowHours;
+    const radiusMeters = alert.radiusMeters ?? settings.radiusMeters;
+    const address = alert.address?.trim();
+
+    let timeText = `zadnjih ${timeWindowHours} sati`;
+
+    if (timeWindowHours === 1) {
+      timeText = "zadnjem satu";
+    } else if (timeWindowHours === 24) {
+      timeText = "zadnja 24 sata";
+    } else if (timeWindowHours > 24 && timeWindowHours % 24 === 0) {
+      const days = timeWindowHours / 24;
+      timeText = days === 1 ? "zadnjem danu" : `zadnjih ${days} dana`;
+    }
+
+    let incidentText = `${incidentCount} prijava`;
+    if (incidentCount === 1) {
+      incidentText = "1 prijava";
+    }
+
+    let description = `Detektovano je ${incidentText} u ${timeText} u radijusu od ${radiusMeters} m`;
+
+    if (address) {
+      description += ` u blizini lokacije: ${address}`;
+    }
+
+    description += ".";
+
+    return description;
+  };
+
+  const shouldShowSystemMessage = (alert) => {
+    if (!alert.message) return false;
+
+    const normalizedMessage = alert.message.trim().toLowerCase();
+    const genericMessages = [
+      `alert #${alert.id}`.toLowerCase(),
+      "alert",
+      "novo upozorenje",
+      "new alert",
+    ];
+
+    return !genericMessages.includes(normalizedMessage);
+  };
+
   const loadAlertsData = async () => {
     if (!moderatorId) {
       setMessage("Nedostaje userId u localStorage.");
@@ -97,12 +144,7 @@ function ModeratorAlertsPage() {
 
     setSettings((prev) => ({
       ...prev,
-      [name]:
-        type === "checkbox"
-          ? checked
-          : name === "enabled"
-          ? value
-          : Number(value),
+      [name]: type === "checkbox" ? checked : Number(value),
     }));
   };
 
@@ -312,14 +354,15 @@ function ModeratorAlertsPage() {
                   className="moderator-alerts-item"
                   key={alert.id ?? `unread-${index}`}
                 >
-                  <h4>
-                    Alert #{alert.id ?? "-"}{" "}
-                    {alert.incidentCount ? `- ${alert.incidentCount} prijava` : ""}
-                  </h4>
+                  <h4>Upozorenje #{alert.id ?? "-"}</h4>
 
-                  {alert.message && (
+                  <p>
+                    <strong>Opis:</strong> {formatAlertDescription(alert)}
+                  </p>
+
+                  {shouldShowSystemMessage(alert) && (
                     <p>
-                      <strong>Poruka:</strong> {alert.message}
+                      <strong>Sistemska poruka:</strong> {alert.message}
                     </p>
                   )}
 
@@ -338,6 +381,12 @@ function ModeratorAlertsPage() {
                   {alert.timeWindowHours && (
                     <p>
                       <strong>Vremenski prozor:</strong> {alert.timeWindowHours} h
+                    </p>
+                  )}
+
+                  {alert.incidentCount && (
+                    <p>
+                      <strong>Broj prijava:</strong> {alert.incidentCount}
                     </p>
                   )}
 
@@ -379,20 +428,39 @@ function ModeratorAlertsPage() {
                   className="moderator-alerts-item"
                   key={alert.id ?? `all-${index}`}
                 >
-                  <h4>
-                    Alert #{alert.id ?? "-"}{" "}
-                    {alert.incidentCount ? `- ${alert.incidentCount} prijava` : ""}
-                  </h4>
+                  <h4>Upozorenje #{alert.id ?? "-"}</h4>
 
-                  {alert.message && (
+                  <p>
+                    <strong>Opis:</strong> {formatAlertDescription(alert)}
+                  </p>
+
+                  {shouldShowSystemMessage(alert) && (
                     <p>
-                      <strong>Poruka:</strong> {alert.message}
+                      <strong>Sistemska poruka:</strong> {alert.message}
                     </p>
                   )}
 
                   {alert.address && (
                     <p>
                       <strong>Lokacija:</strong> {alert.address}
+                    </p>
+                  )}
+
+                  {alert.radiusMeters && (
+                    <p>
+                      <strong>Radijus:</strong> {alert.radiusMeters} m
+                    </p>
+                  )}
+
+                  {alert.timeWindowHours && (
+                    <p>
+                      <strong>Vremenski prozor:</strong> {alert.timeWindowHours} h
+                    </p>
+                  )}
+
+                  {alert.incidentCount && (
+                    <p>
+                      <strong>Broj prijava:</strong> {alert.incidentCount}
                     </p>
                   )}
 
