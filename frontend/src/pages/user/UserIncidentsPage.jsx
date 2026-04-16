@@ -4,11 +4,13 @@ import UserTopbar from "../../components/user/UserTopbar";
 import IncidentFilters from "../../components/guest/IncidentFilters";
 import IncidentMap from "../../components/guest/IncidentMap";
 import { getApprovedIncidents } from "../../services/incidentService";
+import { translateText } from "../../services/translationService";
 import "../guest/IncidentsPage.css";
 
 function UserIncidentsPage() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [translations, setTranslations] = useState({});
 
   const [filters, setFilters] = useState({
     type: "",
@@ -23,10 +25,29 @@ function UserIncidentsPage() {
 
       try {
         const response = await getApprovedIncidents(filters);
-        setIncidents(Array.isArray(response.data) ? response.data : []);
+        const loadedIncidents = Array.isArray(response.data) ? response.data : [];
+
+        setIncidents(loadedIncidents);
+
+        const translatedMap = {};
+
+        for (const incident of loadedIncidents) {
+          const originalText = incident.description || "";
+
+          if (!originalText.trim()) {
+            translatedMap[incident.id] = "";
+            continue;
+          }
+
+          const translated = await translateText(originalText);
+          translatedMap[incident.id] = translated;
+        }
+
+        setTranslations(translatedMap);
       } catch (error) {
         console.error("Greška pri učitavanju incidenata:", error);
         setIncidents([]);
+        setTranslations({});
       } finally {
         setLoading(false);
       }
@@ -60,6 +81,7 @@ function UserIncidentsPage() {
                 center={center}
                 zoom={13}
                 markers={incidents}
+                translations={translations}
                 className="incidents-map"
               />
             </div>
@@ -80,19 +102,44 @@ function UserIncidentsPage() {
                 </div>
               )}
 
-              {incidents.map((incident) => (
-                <div className="incident-item" key={incident.id}>
-                  <h4>
-                    {incident.type} {incident.subtype ? `- ${incident.subtype}` : ""}
-                  </h4>
-                  <p><strong>Adresa:</strong> {incident.address}</p>
-                  <p><strong>Opis:</strong> {incident.description}</p>
-                  <p><strong>Koordinate:</strong> {incident.latitude}, {incident.longitude}</p>
-                  {incident.createdAt && (
-                    <p><strong>Vrijeme:</strong> {incident.createdAt}</p>
-                  )}
-                </div>
-              ))}
+              {incidents.map((incident) => {
+                const imageUrl = incident.imagePath
+                  ? `http://localhost:8080${incident.imagePath}`
+                  : null;
+
+                return (
+                  <div className="incident-item" key={incident.id}>
+                    <h4>
+                      {incident.type} {incident.subtype ? `- ${incident.subtype}` : ""}
+                    </h4>
+
+                    {imageUrl && (
+                      <div className="incident-image-wrapper">
+                        <img
+                          src={imageUrl}
+                          alt="Slika incidenta"
+                          className="incident-image"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    <p><strong>Adresa:</strong> {incident.address}</p>
+                    <p><strong>Opis (original):</strong> {incident.description}</p>
+                    <p>
+                      <strong>Description (EN):</strong>{" "}
+                      {translations[incident.id] || "Prevod nije dostupan."}
+                    </p>
+                    <p><strong>Koordinate:</strong> {incident.latitude}, {incident.longitude}</p>
+
+                    {incident.createdAt && (
+                      <p><strong>Vrijeme:</strong> {incident.createdAt}</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

@@ -25,6 +25,7 @@ function IncidentMap({
   center = [44.7722, 17.191],
   zoom = 13,
   markers = [],
+  translations = {},
   onMapClick = null,
   className = "shared-map",
 }) {
@@ -50,12 +51,18 @@ function IncidentMap({
           ? `http://localhost:8080${marker.imagePath}`
           : null;
 
+        const translatedDescription = translations?.[marker.id];
+
         return (
           <Marker
             key={marker.id}
             position={[Number(marker.latitude), Number(marker.longitude)]}
           >
-            <Popup maxWidth={260} minWidth={220}>
+            <Popup
+              key={`${marker.id}-${translatedDescription || "no-translation"}`}
+              maxWidth={260}
+              minWidth={220}
+            >
               <div className="incident-popup">
                 <div className="incident-popup-title">
                   {marker.type || "Incident"}
@@ -79,6 +86,10 @@ function IncidentMap({
 
                 {marker.description && (
                   <p><strong>Opis:</strong> {marker.description}</p>
+                )}
+
+                {translatedDescription && (
+                  <p><strong>Description (EN):</strong> {translatedDescription}</p>
                 )}
               </div>
             </Popup>

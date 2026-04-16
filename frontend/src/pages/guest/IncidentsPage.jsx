@@ -4,11 +4,13 @@ import GuestTopbar from "../../components/guest/GuestTopbar";
 import IncidentFilters from "../../components/guest/IncidentFilters";
 import IncidentMap from "../../components/guest/IncidentMap";
 import { getApprovedIncidents } from "../../services/incidentService";
+import { translateText } from "../../services/translationService";
 import "./IncidentsPage.css";
 
 function IncidentsPage() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [translations, setTranslations] = useState({});
 
   const [filters, setFilters] = useState({
     type: "",
@@ -23,10 +25,29 @@ function IncidentsPage() {
 
       try {
         const response = await getApprovedIncidents(filters);
-        setIncidents(Array.isArray(response.data) ? response.data : []);
+        const loadedIncidents = Array.isArray(response.data) ? response.data : [];
+
+        setIncidents(loadedIncidents);
+
+        const translatedMap = {};
+
+        for (const incident of loadedIncidents) {
+          const originalText = incident.description || "";
+
+          if (!originalText.trim()) {
+            translatedMap[incident.id] = "";
+            continue;
+          }
+
+          const translated = await translateText(originalText);
+          translatedMap[incident.id] = translated;
+        }
+
+        setTranslations(translatedMap);
       } catch (error) {
         console.error("Greška pri učitavanju incidenata:", error);
         setIncidents([]);
+        setTranslations({});
       } finally {
         setLoading(false);
       }
@@ -60,6 +81,7 @@ function IncidentsPage() {
                 center={center}
                 zoom={13}
                 markers={incidents}
+                translations={translations}
                 className="incidents-map"
               />
             </div>
@@ -105,8 +127,13 @@ function IncidentsPage() {
                     )}
 
                     <p><strong>Adresa:</strong> {incident.address}</p>
-                    <p><strong>Opis:</strong> {incident.description}</p>
+                    <p><strong>Opis (original):</strong> {incident.description}</p>
+                    <p>
+                      <strong>Description (EN):</strong>{" "}
+                      {translations[incident.id] || "Prevod nije dostupan."}
+                    </p>
                     <p><strong>Koordinate:</strong> {incident.latitude}, {incident.longitude}</p>
+
                     {incident.createdAt && (
                       <p><strong>Vrijeme:</strong> {incident.createdAt}</p>
                     )}

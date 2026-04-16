@@ -7,21 +7,42 @@ import {
   getPendingIncidents,
   rejectIncident,
 } from "../../services/incidentService";
+import { translateText } from "../../services/translationService";
 import "./ModeratorPendingPage.css";
 
 function ModeratorPendingPage() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [translations, setTranslations] = useState({});
 
   const loadPendingIncidents = async () => {
     setLoading(true);
     try {
       const response = await getPendingIncidents();
-      setIncidents(Array.isArray(response?.data) ? response.data : []);
+      const loadedIncidents = Array.isArray(response?.data) ? response.data : [];
+
+      setIncidents(loadedIncidents);
+
+      const translatedMap = {};
+
+      for (const incident of loadedIncidents) {
+        const originalText = incident.description || "";
+
+        if (!originalText.trim()) {
+          translatedMap[incident.id] = "";
+          continue;
+        }
+
+        const translated = await translateText(originalText);
+        translatedMap[incident.id] = translated;
+      }
+
+      setTranslations(translatedMap);
     } catch (error) {
       console.error("Greška pri učitavanju pending incidenata:", error);
       setIncidents([]);
+      setTranslations({});
       setMessage("Greška pri učitavanju pending incidenata.");
     } finally {
       setLoading(false);
@@ -39,6 +60,11 @@ function ModeratorPendingPage() {
       await approveIncident(id);
       setMessage("Incident je uspješno odobren.");
       setIncidents((prev) => prev.filter((incident) => incident.id !== id));
+      setTranslations((prev) => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
     } catch (error) {
       console.error("Greška pri odobravanju incidenta:", error);
       setMessage("Greška pri odobravanju incidenta.");
@@ -52,6 +78,11 @@ function ModeratorPendingPage() {
       await rejectIncident(id);
       setMessage("Incident je uspješno odbijen.");
       setIncidents((prev) => prev.filter((incident) => incident.id !== id));
+      setTranslations((prev) => {
+        const updated = { ...prev };
+        delete updated[id];
+        return updated;
+      });
     } catch (error) {
       console.error("Greška pri odbijanju incidenta:", error);
       setMessage("Greška pri odbijanju incidenta.");
@@ -87,6 +118,7 @@ function ModeratorPendingPage() {
                 center={center}
                 zoom={13}
                 markers={incidents}
+                translations={translations}
                 className="moderator-pending-map"
               />
             </div>
@@ -113,7 +145,11 @@ function ModeratorPendingPage() {
                   </h4>
 
                   <p><strong>Adresa:</strong> {incident.address}</p>
-                  <p><strong>Opis:</strong> {incident.description}</p>
+                  <p><strong>Opis (original):</strong> {incident.description}</p>
+                  <p>
+                    <strong>Description (EN):</strong>{" "}
+                    {translations[incident.id] || "Prevod nije dostupan."}
+                  </p>
                   <p>
                     <strong>Koordinate:</strong> {incident.latitude},{" "}
                     {incident.longitude}
